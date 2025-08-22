@@ -2,7 +2,7 @@
 
 This repository includes code and data used for my diploma thesis
 
-<h4 style="text-align:center;">"City navigation website using MongoDB for data management and geospatial querying"</h4>
+<h4 align="center">"City navigation website using MongoDB for data management and geospatial querying"</h4>
 
 for the Department of Electrical and Computer Engineering of University of Thessaly.
 
