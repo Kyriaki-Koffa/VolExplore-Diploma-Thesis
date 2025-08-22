@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="rounded border border-dark shadow p-4 mb-4 bg-light comment-box">
+        <div id="Comments">
+            <h3 class="p-centre">Select point of interest to view comments</h3>
+        </div>
+    </div>
+
+    <script>
+
+        var POI = JSON.parse('{{ backend_data | tojson | safe }}');
+        var marker_array = [];
+        
+        // display all the POI in area searched
+        for(let filter_item in POI) {
+            if(POI[filter_item].geometry.type == "Point"){
+                marker_array[filter_item] = L.marker([POI[filter_item].geometry.coordinates[1], POI[filter_item].geometry.coordinates[0]]).addTo(map);
+            }
+            else {
+                for(let arraySet in POI[filter_item].geometry.coordinates){
+                    var coord = [];
+                    for (let coordinateSet in POI[filter_item].geometry.coordinates[arraySet]){
+                        coord[coordinateSet] = [POI[filter_item].geometry.coordinates[arraySet][coordinateSet][1], POI[filter_item].geometry.coordinates[arraySet][coordinateSet][0]] 
+                    }
+                    marker_array[filter_item] = L.polygon([coord]).addTo(map);
+                }
+            }
+
+            var poid = POI[filter_item].POID.toString;
+
+            marker_array[filter_item].bindPopup(`Type: ${POI[filter_item].properties.type}</br>
+                                                Name: ${POI[filter_item].properties.name}</br>
+                                                Details: ${POI[filter_item].properties.details}</br>
+                                                POID: ${POI[filter_item].POID}</br>
+                                                <button type='button' class='btn btn-info btn-sm comClass' id='${POI[filter_item].POID}' onClick='showComments()'>Comments</button>`);
+        }
+
+        function showComments(){
+            var poid;
+            for(let filter_item in POI) {
+                poid = POI[filter_item].POID;
+                if(document.querySelector('#' + poid)){
+                    var poiID = {"POID": poid};
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('showComments') }}",
+                        data: JSON.stringify(poiID),
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function(comments){
+                            document.getElementById("Comments").innerHTML = "{% if session['username'] %}\
+                                                                            <div class='input-group mb-3'>\
+                                                                                <input type='hidden' id='commPOID' name='commPOID' value='" + poid + "'>\
+                                                                                <textarea class='form-control' rows='2' id='newComment' name='newComment'></textarea>\
+                                                                            </div>\
+                                                                            <button type='submit' class='btn btn-primary mb-3' id='submitComment' onClick='addComment()'>Add Comment</button>\
+                                                                            {% endif %}";
+                            if("empty" in comments){
+                                $("#Comments").append("<p>There are no comments for this Point of Interest so far</p>");
+                            }
+                            else{
+                                for(let entry in comments){
+                                    $("#Comments").append("<div class='card mb-2'>\
+                                                                <div class='card-header'>User: " + comments[entry].guest_usr +" Date: " + comments[entry].time + " </div>\
+                                                                <div class='card-body'>" + comments[entry].comment + "</div>\
+                                                            </div>");
+                                }
+                            }
+                        }
+                    })
+                    break;
+                }
+            }
+        }
+
+        function addComment(){
+            var poid = document.getElementById("commPOID").getAttribute("value");
+            var comment = $("#newComment").val();
+            var data = {
+                "POID": poid,
+                "Comment": comment
+            };
+            console.log("i got in the comment form thing")
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('showComments') }}",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(comments){
+                    document.getElementById("Comments").innerHTML = "{% if session['username'] %}\
+                                                                    <div class='input-group mb-3'>\
+                                                                        <input type='hidden' id='commPOID' name='commPOID' value='" + poid + "'>\
+                                                                        <textarea class='form-control' rows='2' id='newComment' name='newComment'></textarea>\
+                                                                    </div>\
+                                                                    <button type='submit' class='btn btn-primary mb-3' id='submitComment' onClick='addComment()'>Add Comment</button>\
+                                                                    {% endif %}";
+                    if("empty" in comments){
+                        $("#Comments").append("<p>There are no comments for this Point of Interest so far</p>");
+                    }
+                    else{
+                        for(let entry in comments){
+                            $("#Comments").append("<div class='card mb-3'>\
+                                                        <div class='card-header'>User: " + comments[entry].guest_usr +" Date: " + comments[entry].time + " </div>\
+                                                        <div class='card-body'>" + comments[entry].comment + "</div>\
+                                                    </div>");
+                        }
+                    }
+                }
+            })
+        }
+
+    </script>
+    
+    <a href="{{ url_for('point_search') }}" class="btn btn-primary" role="button" data-bs-toggle="button" style="margin: 5px 10px;">New Search</a>
+    {% if session['admin'] %}
+        <a href="{{ url_for('addinfo') }}" class="btn btn-primary" role="button" data-bs-toggle="button" style="margin: 5px 10px;">Is there something missing?</a>
+    {% endif %}
+
+{% endblock content %}

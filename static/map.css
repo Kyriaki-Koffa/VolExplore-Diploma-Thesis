@@ -1,0 +1,123 @@
+html {
+  font-size: 20px;
+}
+
+body {
+  align-items: center;
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #d6e0e9;
+  z-index: 0;
+}
+
+.bg-image {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1200px;
+  height: 600px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%,rgba(255, 255, 255, 0.5) 0%), url('/static/images/mapImage.png') no-repeat center center / cover;
+  filter: blur(4px);
+}
+
+.choice-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.bottom-choice {
+  position: fixed;
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#map {
+  height: 500px;
+  border-style: solid;
+  border-color: rgb(6, 6, 39);
+  margin-top: 100px;
+  margin-bottom: 10px;
+}
+
+.formBtn {
+  padding: 10px;
+  float: left;
+  border-style: hidden;
+  border-radius: 3px;
+  background-color: #e8f1f7;
+  box-shadow: 4px 4px 4px 0px #00000033
+}
+
+.filterList {
+  padding: 10px;
+  float: right;
+  border-style: hidden;
+  border-radius: 3px;
+  background-color: #e8f1f7;
+  box-shadow: 4px 4px 4px 0px #00000033
+}
+
+.customJ {
+  padding: 2em;
+  margin-bottom: 2em;
+  margin-top: 20px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #1b7591;
+}
+
+.comment-box {
+  height: 200px;
+  overflow: scroll;
+}
+
+.p-centre {
+  text-align: center;
+}
+
+.btn-marg {
+  margin: 5px 10px;
+}
+
+.left-poi {
+  float: left;
+  width: 48%;
+}
+
+.right-poi {
+  float: right;
+  width: 48%;
+}
+
+.bg-steel {
+  background-color: cornflowerblue;
+}
+
+.site-header .navbar-nav {
+  color: #cbd5db;
+}
+
+.form-check-inline {
+  width: 200px;
+}
+
+.loader {
+  position: relative;
+  margin: auto;
+  transform: translate(-50%, -50%);
+  border: 16px solid #b4c0da;
+  border-top: 16px solid #4336b9;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}

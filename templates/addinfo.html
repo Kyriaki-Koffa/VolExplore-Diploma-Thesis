@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <script>
+        var markers = [];
+        var coordsLat = [];
+        var coordsLng = [];
+
+        // add pins for every click on map
+        function onMapClick(e){
+            markers.push(L.marker().setLatLng(e.latlng).addTo(map));
+            coordsLat.push(e.latlng.lat)
+            coordsLng.push(e.latlng.lng)
+
+            document.getElementById("coordsLat").value = coordsLat;
+            document.getElementById("coordsLng").value = coordsLng;
+        }
+        map.on('click', onMapClick);
+    </script>
+
+    <div style="float: left;">
+        <div class="container px-2 py-4 mb-2 rounded bg-light shadow">
+            <form method="POST" action="{{ url_for('checkPOI') }}">
+                <div class="input-group">
+                    <input type="hidden" id="coordsLat" name="coordsLat" value="">
+                    <input type="hidden" id="coordsLng" name="coordsLng" value="">
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="arch_chk" value="Archaeological_Site">Archaeological site
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="art_chk" value="Arts_Centre">Arts centre
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="castle_chk" value="Castle">Castle
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="fountain_chk" value="Fountain">Fountain
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="gardn_chk" value="Garden">Garden
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="hist_chk" value="Historic">Historic
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="memo_chk" value="Memorial">Memorial
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="museum_chk" value="Museum">Museum
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="prk_chk" value="Park">Park
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="playgrnd_chk" value="Playground">Playground
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="rec_chk" value="Recreational_Ground">Recreation ground
+                        </div>
+                    </div>
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="trst_chk" value="Tourist_Attraction">Tourist attraction
+                        </div>
+                    </div>
+                </div>
+                <div class="form-check">
+                    <div class="form-check-inline">
+                        <div class="form-check-label">
+                            <input type="radio" class="form-check-input" name="poiType" id="vp_chk" value="Viewpoint">Viewpoint
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2 ml-3" id="submitInfo">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div style="float: right; width: 50%;">
+        <div class="jumbotron shadow">
+            <h4>Select area and a type of Point of Interest</h4>
+            <p class="small">Either by clicking once on the map for a point, or multiple times to get an area</br>
+            Then choose what type it is by checking one of the types accordingly</p>
+            <a href="{{ url_for('addinfo') }}" class="btn btn-primary" role="button" data-bs-toggle="button">Reset</a>
+        </div>
+    </div>
+
+{% endblock content %}

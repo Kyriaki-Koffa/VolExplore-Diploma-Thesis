@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="rounded border border-info shadow p-4 mb-4 bg-light comment-box">
+        <div id="Comments">
+            <h3 class="p-centre">Select point of interest to view comments</h3>
+        </div>
+    </div>
+
+    <script>
+        var route = JSON.parse('{{ route | tojson | safe }}');
+        var POI = JSON.parse('{{ POI | tojson | safe }}');
+
+        var marker_array = [];
+
+        // circle that marks the area searched for POI
+        var circle = L.circle([parseFloat("{{ lat }}"), parseFloat("{{ lng }}")], {
+                            color: 'green',
+                            fillColor: '#f03',
+                            fillOpacity: 0.1,
+                            radius: parseFloat("{{ radius }}")
+                        }).addTo(map);
+        // route line
+        let rPol = L.polyline(route, { color: 'red' }).addTo(map);
+        rPol.bindPopup("Distance: {{ route_dist }}m</br>Approximated time: {{ time }} minutes")
+
+        // all the POI fetched
+        for(let POI_entry in POI){
+            if(POI[POI_entry].geometry.type == "Point"){
+                marker_array[POI_entry] = L.marker([POI[POI_entry].geometry.coordinates[1], POI[POI_entry].geometry.coordinates[0]]).addTo(map);
+            }
+            else {
+                for(let arraySet in POI[POI_entry].geometry.coordinates){
+                    var coord = [];
+                    for (let coordinateSet in POI[POI_entry].geometry.coordinates[arraySet]){
+                        coord[coordinateSet] = [POI[POI_entry].geometry.coordinates[arraySet][coordinateSet][1], POI[POI_entry].geometry.coordinates[arraySet][coordinateSet][0]] 
+                    }
+                    marker_array[POI_entry] = L.polygon([coord]).addTo(map);
+                }
+            }
+            marker_array[POI_entry].bindPopup(`Type: ${POI[POI_entry].properties.type}</br>
+                                                Name: ${POI[POI_entry].properties.name}</br>
+                                                Details: ${POI[POI_entry].properties.details}</br>
+                                                POID: ${POI[POI_entry].POID}</br>
+                                                <button type='button' class='btn btn-info btn-sm comClass' id='${POI[POI_entry].POID}' onClick='showComments()'>Comments</button>`);
+        }
+        
+        function showComments(){
+            var poid;
+            for(let filter_item in POI) {
+                poid = POI[filter_item].POID;
+                if(document.querySelector('#' + poid)){
+                    var poiID = {"POID": poid};
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url_for('showComments') }}",
+                        data: JSON.stringify(poiID),
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function(comments){
+                            document.getElementById("Comments").innerHTML = "{% if session['username'] %}\
+                                                                            <div class='input-group mb-3'>\
+                                                                                <input type='hidden' id='commPOID' name='commPOID' value='" + poid + "'>\
+                                                                                <textarea class='form-control' rows='2' id='newComment' name='newComment'></textarea>\
+                                                                            </div>\
+                                                                            <button type='submit' class='btn btn-primary mb-3' id='submitComment' onClick='addComment()'>Add Comment</button>\
+                                                                            {% endif %}";
+                            if("empty" in comments){
+                                $("#Comments").append("<p>There are no comments for this Point of Interest so far</p>");
+                            }
+                            else{
+                                for(let entry in comments){
+                                    $("#Comments").append("<div class='card mb-2'>\
+                                                                <div class='card-header'>User: " + comments[entry].guest_usr +" Date: " + comments[entry].time + " </div>\
+                                                                <div class='card-body'>" + comments[entry].comment + "</div>\
+                                                            </div>");
+                                }
+                            }
+                        }
+                    })
+                    break;
+                }
+            }
+        }
+
+        function addComment(){
+            var poid = document.getElementById("commPOID").getAttribute("value");
+            var comment = $("#newComment").val();
+            var data = {
+                "POID": poid,
+                "Comment": comment
+            };
+            console.log("i got in the comment form thing")
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('showComments') }}",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(comments){
+                    document.getElementById("Comments").innerHTML = "{% if session['username'] %}\
+                                                                    <div class='input-group mb-3'>\
+                                                                        <input type='hidden' id='commPOID' name='commPOID' value='" + poid + "'>\
+                                                                        <textarea class='form-control' rows='2' id='newComment' name='newComment'></textarea>\
+                                                                    </div>\
+                                                                    <button type='submit' class='btn btn-primary mb-3' id='submitComment' onClick='addComment()'>Add Comment</button>\
+                                                                    {% endif %}";
+                    if("empty" in comments){
+                        $("#Comments").append("<p>There are no comments for this Point of Interest so far</p>");
+                    }
+                    else{
+                        for(let entry in comments){
+                            $("#Comments").append("<div class='card mb-2'>\
+                                                        <div class='card-header'>User: " + comments[entry].guest_usr +" Date: " + comments[entry].time + " </div>\
+                                                        <div class='card-body'>" + comments[entry].comment + "</div>\
+                                                    </div>");
+                        }
+                    }
+                }
+            })
+        }
+
+    </script>
+
+    <a href="{{ url_for('route_search') }}" class="btn btn-primary" role="button" data-bs-toggle="button" style="margin: 5px 10px;">New Route</a>
+
+
+{% endblock content %}

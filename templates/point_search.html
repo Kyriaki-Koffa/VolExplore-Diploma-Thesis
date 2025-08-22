@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <script>
+    //on click get the coords- place a marker- get the distance-
+    //and return to the backend for proper querying
+    var marker = L.marker();
+    let lat;
+    let lng;
+
+    function onMapClick(e) {
+      marker.setLatLng(e.latlng).addTo(map);
+      lat = e.latlng.lat;
+      lng = e.latlng.lng;
+
+      document.getElementById("lat").value = lat;
+      document.getElementById("lng").value = lng;
+      disableChecks(true);
+      disableElem("all_chk", true);
+    }
+
+    map.on('click', onMapClick);
+  </script>
+
+  <div class="container p-4 mb-4">
+    <form method="GET" action="{{ url_for('point_result') }}">
+      <div class="formBtn">
+        <div class="input-group my-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Distance</span>
+          </div>
+          <input type="number" class="form-control" id="distance" name="distance" disabled>
+          <input type="hidden" id="lat" name="lat" value="">
+          <input type="hidden" id="lng" name="lng" value="">
+        </div>
+        <button type="submit" class="btn btn-primary btn-marg" disabled id="dist_btn">Go</button>
+        <a href="{{ url_for('point_search') }}" class="btn btn-primary btn-marg" role="button" data-bs-toggle="button">Reset</a>
+        
+      </div>
+      <div class="filterList">
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="all_chk" id="all_chk" onclick='disableChecks(!this.checked); disableElem("distance", this.checked); disableElem("dist_btn", this.checked)'>All
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="arch_chk" id="arch_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Archaeological site
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="art_chk" id="art_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Arts centre
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="castle_chk" id="castle_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Castle
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="fountain_chk" id="fountain_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Fountain
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="gardn_chk" id="gardn_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Garden
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="hist_chk" id="hist_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Historic
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="memo_chk" id="memo_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Memorial
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="museum_chk" id="museum_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Museum
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="prk_chk" id="prk_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Park
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="playgrnd_chk" id="playgrnd_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Playground
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="rec_chk" id="rec_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Recreation ground
+            </label>
+          </div>
+        </div>
+        <div class="form-check">
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="trst_chk" id="trst_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Tourist attraction
+            </label>
+          </div>
+          <div class="form-check-inline">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" value="1" disabled name="vp_chk" id="vp_chk" onclick="checkChecks('distance', this.checked); checkChecks('dist_btn', this.checked)">Viewpoint
+            </label>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+{% endblock content %}

@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <div class="rounded border border-dark shadow p-3 mb-4 bg-light left-poi">
+        <div class="container p-4">
+            <form method="POST" action="{{ url_for('start_page') }}">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Name of new Point of Interest</span>
+                    </div>
+                    <input type="text" class="form-control" id="name" name="name">
+                </div>
+                <div class="form-group">
+                    <label for="details">Details of new Point of Interest:</label>
+                    <textarea class='form-control' rows='5' id='details' name='details'></textarea>
+                </div>
+                <input type="hidden" id="poiType" name="poiType" value="{{ POIfilter }}">
+                <input type="hidden" id="givenCoords" name="givenCoords" value="{{ inputCoord }}">
+                <input type="hidden" id="flag" name="flag" value="1">
+                <button type="submit" class="btn btn-primary" id="submit-New-btn">Submit new Point of Interest</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="rounded border border-dark shadow p-4 mb-4 bg-light right-poi">
+        <div class="mx-auto" id="upForm">Select point of interest to update</div>
+    </div>
+
+    <script>
+        var POI = JSON.parse('{{ poi | tojson | safe }}');
+
+        var marker_array = [];
+        
+        // add POI markers (pin for point, polygon for polygons)
+        for(let filter_item in POI) {
+            if(POI[filter_item].geometry.type == "Point"){
+                marker_array[filter_item] = L.marker([POI[filter_item].geometry.coordinates[1], POI[filter_item].geometry.coordinates[0]]).addTo(map);
+            }
+            else {
+                for(let arraySet in POI[filter_item].geometry.coordinates){
+                    var coord = [];
+                    for (let coordinateSet in POI[filter_item].geometry.coordinates[arraySet]){
+                        coord[coordinateSet] = [POI[filter_item].geometry.coordinates[arraySet][coordinateSet][1], POI[filter_item].geometry.coordinates[arraySet][coordinateSet][0]] 
+                    }
+                    marker_array[filter_item] = L.polygon([coord]).addTo(map);
+                }
+            }
+
+            var poid = POI[filter_item].POID.toString;
+            
+            //information window
+            marker_array[filter_item].bindPopup(`Type: ${POI[filter_item].properties.type}</br>
+                                                Name: ${POI[filter_item].properties.name}</br>
+                                                Details: ${POI[filter_item].properties.details}</br>
+                                                POID: ${POI[filter_item].POID}</br>
+                                                <button type='button' class='btn btn-info btn-sm comClass' id='${POI[filter_item].POID}' onClick='updateForm()'>Update</button>`);
+        }
+
+        function updateForm(){
+            var poid;
+            var name;
+            // changes the HTML when admin chooses to update a pre-existing POI
+            for(let filter_item in POI) {
+                poid = POI[filter_item].POID;
+                name = String(POI[filter_item].properties.name);
+                if(document.querySelector('#' + poid)){
+                    document.getElementById("upForm").innerHTML = "<div class='container p-3 mb-4 shadow'>\
+                                                                        <form method='POST' action='{{ url_for('start_page') }}'>\
+                                                                            <div class='input-group mb-3'>\
+                                                                                <div class='input-group-prepend'>\
+                                                                                    <span class='input-group-text'>Update Name</span>\
+                                                                                </div>\
+                                                                                <input type='text' class='form-control' id='name' name='name' value='"+name+"'>\
+                                                                            </div>\
+                                                                            <div class='form-group'>\
+                                                                                <label for='details'>Update Details:</label>\
+                                                                                <textarea class='form-control' rows='5' id='details' name='details'>"+ POI[filter_item].properties.details +"</textarea>\
+                                                                            </div>\
+                                                                            <input type='hidden' id='poid' name='poid' value='" + poid + "'>\
+                                                                            <input type='hidden' id='flag' name='flag' value='0'>\
+                                                                            <button type='submit' class='btn btn-primary' id='submit-Upd-btn'>Submit Update</button>\
+                                                                        </form>\
+                                                                    </div>";
+                    break;
+                }
+            }
+        }
+    </script>
+
+{% endblock content %}

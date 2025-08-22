@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <!--basic additions-->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!--for more css styling-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+        <!-- jQuery library -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!--for styling-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='map.css') }}">
+
+        <!--title of site-->
+        <title>Explore Volos - Choose action</title>
+    </head>
+    <body>
+        <main role="main" class="container">
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-success alert-dismissible" id="addUpdAlert">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <strong>OK: </strong>{{ message }}
+                            </div>
+                            <script>
+                                $(document).ready(function(){
+                                $(".close").click(function(){
+                                    $("#addUpdAlert").alert("close");
+                                });
+                                });
+                            </script>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="shape rect bg-image"></div>
+            <div class="choice-box" id="box-start">
+                <p class="p-centre">Choose an action</p>
+                <p class="d-inline-flex gap-1">
+                    <a href="{{ url_for('point_search') }}" class="btn btn-primary btn-marg" role="button" data-bs-toggle="button">Search in Radius</a>
+                    <a href="{{ url_for('route_search') }}" class="btn btn-primary btn-marg" role="button" data-bs-toggle="button">Search Route</a>
+                </p>
+            </div>
+            <div class="border-top pt-3 bottom-choice">
+                <small class="text-muted text-center">
+                    {% if session['username'] %}
+                        <a href="{{ url_for('logout') }}" class="btn-marg">Log out</a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn-marg">Make an account</a>
+                        <a href="{{ url_for('login') }}" class="btn-marg">Log in</a>
+                    {% endif %}
+                </small>
+            </div>
+        </main>
+    </body>
+</html>

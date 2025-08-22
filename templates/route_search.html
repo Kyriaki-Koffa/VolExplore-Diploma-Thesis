@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+{% block content %}
+    <script>
+        //click two points- place two markers
+        //and return to the backend for proper quering
+        var marker_start = L.marker();
+        var marker_end = L.marker();
+        var popup = L.popup();
+        let ms_b, me_b, b = false;
+        let sp_lat;
+        let sp_lng;
+        let ep_lat;
+        let ep_lng;
+
+        function onMapClick(e) {
+          if(!ms_b){
+            ms_b = true;
+            marker_start.setLatLng(e.latlng).addTo(map);
+            sp_lat = e.latlng.lat;
+            sp_lng = e.latlng.lng;
+
+            document.getElementById("sp_lat").value = sp_lat;
+            document.getElementById("sp_lng").value = sp_lng;
+          }
+          else if(!me_b){
+            me_b = true;
+            marker_end.setLatLng(e.latlng).addTo(map);
+            ep_lat = e.latlng.lat;
+            ep_lng = e.latlng.lng;
+
+            document.getElementById("ep_lat").value = ep_lat;
+            document.getElementById("ep_lng").value = ep_lng;
+
+            disableChecks(true);
+            disableElem("all_chk", true);
+          }
+          else{
+            popup
+              .setLatLng(e.latlng)
+              .setContent("You clicked the map at " + e.latlng.toString())
+              .openOn(map);
+          }
+          
+        }
+        map.on('click', onMapClick);
+    </script>
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+          {% for category, message in messages %}
+              <div class="alert alert-warning alert-dismissible" id="warnAlert">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  <strong>Warning: </strong>{{ message }}
+              </div>
+              <script>
+                $(document).ready(function(){
+                  $(".close").click(function(){
+                    $("#warnAlert").alert("close");
+                  });
+                });
+              </script>
+          {% endfor %}
+      {% endif %}
+  {% endwith %}
+</div>
+
+<div class="container" id="loadin" style="display: none;">
+  <div class="customJ">
+    <h3 class="p-centre">Please wait</h3>
+    <p class="p-centre">Calculating route</p>
+  </div>
+  <div class="loader"></div>
+</div>
+
+<div class="container p-4 mb-4" id="forma" style="display: block;">
+  <form method="GET" action="{{ url_for('route_result') }}">
+    <div class="formBtn">
+      <div class="input-group">
+        <input type="hidden" id="sp_lat" name="sp_lat" value="">
+        <input type="hidden" id="sp_lng" name="sp_lng" value="">
+        <input type="hidden" id="ep_lat" name="ep_lat" value="">
+        <input type="hidden" id="ep_lng" name="ep_lng" value="">
+      </div>
+      <button type="submit" class="btn btn-primary btn-marg" disabled id="go_btn">Go</button>
+      <a href="{{ url_for('route_search') }}" class="btn btn-primary btn-marg" role="button" data-bs-toggle="button">Reset</a>
+    </div>
+
+    <div class="filterList">
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="all_chk" id="all_chk" onclick='disableChecks(!this.checked); disableElem("go_btn", this.checked)'>All
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="arch_chk" id="arch_chk" onclick="checkChecks('go_btn', this.checked)">Archaeological site
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="art_chk" id="art_chk" onclick="checkChecks('go_btn', this.checked)">Arts centre
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="castle_chk" id="castle_chk" onclick="checkChecks('go_btn', this.checked)">Castle
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="fountain_chk" id="fountain_chk" onclick="checkChecks('go_btn', this.checked)">Fountain
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="gardn_chk" id="gardn_chk" onclick="checkChecks('go_btn', this.checked)">Garden
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="hist_chk" id="hist_chk" onclick="checkChecks('go_btn', this.checked)">Historic
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="memo_chk" id="memo_chk" onclick="checkChecks('go_btn', this.checked)">Memorial
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="museum_chk" id="museum_chk" onclick="checkChecks('go_btn', this.checked)">Museum
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="prk_chk" id="prk_chk" onclick="checkChecks('go_btn', this.checked)">Park
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="playgrnd_chk" id="playgrnd_chk" onclick="checkChecks('go_btn', this.checked)">Playground
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="rec_chk" id="rec_chk" onclick="checkChecks('go_btn', this.checked)">Recreation ground
+          </label>
+        </div>
+      </div>
+      <div class="form-check">
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="trst_chk" id="trst_chk" onclick="checkChecks('go_btn', this.checked)">Tourist attraction
+          </label>
+        </div>
+        <div class="form-check-inline">
+          <label class="form-check-label">
+            <input type="checkbox" class="form-check-input" value="1" disabled name="vp_chk" id="vp_chk" onclick="checkChecks('go_btn', this.checked)">Viewpoint
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  $("#go_btn").on('click', function(){
+    $("#forma").hide();
+    $("#loadin").show();
+  })
+</script>
+
+{% endblock content %}
