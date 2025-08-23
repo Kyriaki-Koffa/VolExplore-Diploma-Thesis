@@ -233,7 +233,6 @@ def route_result():
 @app.route('/showComments', methods=['GET', 'POST'])
 def showComments():
     data = request.get_json()
-    print(data)
     if 'Comment' in data:
         cQ.addComment(comment_collection, data['POID'], data['Comment'], session['username'])
     #make query to fetch all comments
